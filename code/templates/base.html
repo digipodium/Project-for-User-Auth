@@ -15,7 +15,7 @@
 </head>
 <body>
     <!-- b4-nav-ul -->
-    <ul class="nav justify-content-center", style="background-color: blanchedalmond;">
+    <ul class="nav justify-content-center", style="background-color:rgb(6, 17, 17);">
         <li class="nav-item">
             <a class="nav-link" href="/home">Home</a>
         </li>
@@ -50,6 +50,20 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <!-- fa5-$-js -->
     <script defer src="https://use.fontawesome.com/releases/v5.1.1/js/all.js" integrity="sha384-BtvRZcyfv4r0x/phJt9Y9HhnN5ur1Z+kZbKVgzVBAlQZX4jvAuImlIz+bG7TS00a" crossorigin="anonymous"></script>
+    <!-- animation engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script>
+        $(function () {
+            anime({
+            targets: '.nav-item',
+            backgroundColor: ['#fff','#333'],
+            margin:['5px','10px'],
+            borderRadius: ['0%', '5px'],
+            easing: 'easeInOutQuad',
+            duration:300,
+            });
+        });
+    </script>
     {% block js %}{% endblock %}
     
 </body>
