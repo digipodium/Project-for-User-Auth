@@ -3,6 +3,7 @@ import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy import engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import scoped_session
 from project_orm import User
 from utils import *
 
@@ -10,14 +11,34 @@ from flask import Flask,session,flash,redirect,render_template,url_for
 
 app = Flask(__name__)
 app.secret_key = "the basics of life with python"
-engine = create_engine('sqlite:///database.db')
-Session = sessionmaker(bind=engine)
-sess = Session()
 
-
+def get_db():
+    engine = create_engine('sqlite:///database.db')
+    Session = scoped_session(sessionmaker(bind=engine))
+    return Session()
 
 @app.route('/',methods=['GET','POST'])
 def index():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        if email and validate_email(email):
+            if password and len(password)>=6:
+                try:
+                    sess = get_db()
+                    user = sess.query(User).filter_by(email=email,password=password).first()
+                    if user:
+                        session['isauth'] = True
+                        session['email'] = user.email
+                        session['id'] = user.id
+                        session['name'] = user.name
+                        del sess
+                        flash('login successfull','success')
+                        return redirect('/home')
+                    else:
+                        flash('email or password is wrong','danger')
+                except Exception as e:
+                    flash(e,'danger')
     return render_template('index.html',title='login')
 
 @app.route('/signup',methods=['GET','POST'])
@@ -32,9 +53,11 @@ def signup():
                 if password and len(password)>=6:
                     if cpassword and cpassword == password:
                         try:
+                            sess = get_db()
                             newuser = User(name=name,email=email,password=password)
                             sess.add(newuser)
                             sess.commit()
+                            del sess
                             flash('registration successful','success')
                             return redirect('/')
                         except:
@@ -55,7 +78,11 @@ def forgot():
 
 @app.route('/home',methods=['GET','POST'])
 def home():
-    return render_template('home.html',title='Home')
+    if session.get('isauth'):
+        username = session.get('name')
+        return render_template('home.html',title=f'Home|{username}')
+    flash('please login to continue','warning')
+    return redirect('/')
 
 @app.route('/about')
 def about():
@@ -63,6 +90,9 @@ def about():
 
 @app.route('/logout')
 def logout():
+    if session.get('isauth'):
+        session.clear()
+        flash('you have been logged out','warning')
     return redirect('/')
 
 if __name__ == "__main__":
